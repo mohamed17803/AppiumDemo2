@@ -7,27 +7,19 @@ import org.testng.Assert;
 import utils.Actions;
 import utils.Finder;
 
-/**
- * FormsPage Class implementing the Page Object Model (POM).
- * This class isolates the UI elements (Locators) and behaviors (Actions/Assertions)
- * of the Forms/Controls screen from the test logic.
- */
+
 public class FormsPage {
 
     // Global Appium AndroidDriver instance to interact with the mobile elements
     private final AndroidDriver driver;
 
-    /**
-     * Constructor to pass the active driver session from the Test Class to this Page Class.
-     * @param driver Active AndroidDriver instance.
-     */
+
     public FormsPage(AndroidDriver driver) {
         this.driver = driver;
     }
 
-    // ==========================================
+
     // LOCATORS (UI Elements Identifiers)
-    // ==========================================
 
     // Accessibility IDs are highly recommended for Android/iOS testing as they are unique and fast.
     private final By ViewsBtn = AppiumBy.accessibilityId("Views");
@@ -39,42 +31,31 @@ public class FormsPage {
     // Using ClassName locator for the EditText field since it's the standard Android widget for input.
     private final By TextField = AppiumBy.className("android.widget.EditText");
 
-    // ==========================================
-    // ACTIONS (User Interactions Methods)
-    // ==========================================
 
-    /**
-     * Clicks on the 'Views' option from the main menu.
-     */
+    // ACTIONS (User Interactions Methods)
+
+
+
     public void clickViewsBtn() {
         Actions.click(ViewsBtn, driver);
     }
 
-    /**
-     * Clicks on the 'Controls' option inside the Views menu.
-     */
+
     public void clickControlsBtn() {
         Actions.click(ControlsBtn, driver);
     }
 
-    /**
-     * Clicks on the '1. Light Theme' option to enter the form layout.
-     */
+
     public void clickLightThemeBtn() {
         Actions.click(LightThemeBtn, driver);
     }
 
-    /**
-     * Simulates clicking on the EditText field to gain focus before typing.
-     */
+
     public void TextFieldValue() {
         Actions.click(TextField, driver);
     }
 
-    /**
-     * Safe Typing Action: Clears the field, types the text, and handles the keyboard.
-     * @param Sample The actual text data fetched dynamically from the TestData.json file.
-     */
+
     public void TypeTextValue(String Sample) {
         // CRITICAL FIX: We clear the input field first to completely wipe out the background "hint text"
         driver.findElement(TextField).clear();
@@ -91,28 +72,22 @@ public class FormsPage {
         }
     }
 
-    /**
-     * Clicks on the Checkbox 1 element to change its state.
-     */
+
     public void clickCheckbox1() {
         Actions.click(Checkbox1, driver);
     }
 
-    /**
-     * Clicks on the Checkbox 2 element to change its state.
-     */
+
+
     public void clickCheckbox2() {
         Actions.click(Checkbox2, driver);
     }
 
-    // ==========================================
-    // ASSERTION & VERIFICATION METHODS
-    // ==========================================
 
-    /**
-     * Checks whether Checkbox 1 is selected or not.
-     * @return true if checked, false otherwise.
-     */
+    // ASSERTION & VERIFICATION METHODS
+
+
+
     public boolean isCheckbox1Checked() {
         // Fetching the "checked" attribute dynamically from the element (returns "true" or "false" as String)
         String isChecked = Finder.elementVisibility(Checkbox1, driver).getAttribute("checked");
@@ -120,10 +95,7 @@ public class FormsPage {
         return Boolean.parseBoolean(isChecked);
     }
 
-    /**
-     * Checks whether Checkbox 2 is selected or not.
-     * @return true if checked, false otherwise.
-     */
+
     public boolean isCheckbox2Checked() {
         // Fetching the "checked" attribute dynamically from the element
         String isChecked = Finder.elementVisibility(Checkbox2, driver).getAttribute("checked");
@@ -131,13 +103,9 @@ public class FormsPage {
         return Boolean.parseBoolean(isChecked);
     }
 
-    /**
-     * Advanced Verification: Validates that the input field contains the exact text written.
-     * @param expectedSample The expected text value originating from the TestData.json file.
-     */
+
     public void verifyTextFieldText(String expectedSample) {
-        // CRITICAL FIX: Instead of Actions.getText() which can occasionally return the placeholder/hint,
-        // we use getAttribute("text") directly on the visible element to capture what is truly rendered on screen.
+
         String actualTextOnScreen = Finder.elementVisibility(TextField, driver).getAttribute("text");
 
         // Execute the hard assertion with an explicit descriptive failure message
