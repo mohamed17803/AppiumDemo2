@@ -2,6 +2,7 @@ package Pages;
 
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.testng.Assert;
 import utils.Actions;
@@ -36,26 +37,31 @@ public class FormsPage {
 
 
 
+    @Step("Open Views screen")
     public void clickViewsBtn() {
         Actions.click(ViewsBtn, driver);
     }
 
 
+    @Step("Open Controls screen")
     public void clickControlsBtn() {
         Actions.click(ControlsBtn, driver);
     }
 
 
+    @Step("Open Light Theme controls")
     public void clickLightThemeBtn() {
         Actions.click(LightThemeBtn, driver);
     }
 
 
+    @Step("Focus the text field")
     public void TextFieldValue() {
         Actions.click(TextField, driver);
     }
 
 
+    @Step("Type text field value: {0}")
     public void TypeTextValue(String Sample) {
         // CRITICAL FIX: We clear the input field first to completely wipe out the background "hint text"
         driver.findElement(TextField).clear();
@@ -73,12 +79,14 @@ public class FormsPage {
     }
 
 
+    @Step("Select Checkbox 1")
     public void clickCheckbox1() {
         Actions.click(Checkbox1, driver);
     }
 
 
 
+    @Step("Select Checkbox 2")
     public void clickCheckbox2() {
         Actions.click(Checkbox2, driver);
     }
@@ -88,6 +96,7 @@ public class FormsPage {
 
 
 
+    @Step("Verify Checkbox 1 is checked")
     public boolean isCheckbox1Checked() {
         // Fetching the "checked" attribute dynamically from the element (returns "true" or "false" as String)
         String isChecked = Finder.elementVisibility(Checkbox1, driver).getAttribute("checked");
@@ -96,6 +105,7 @@ public class FormsPage {
     }
 
 
+    @Step("Verify Checkbox 2 is checked")
     public boolean isCheckbox2Checked() {
         // Fetching the "checked" attribute dynamically from the element
         String isChecked = Finder.elementVisibility(Checkbox2, driver).getAttribute("checked");
@@ -104,6 +114,7 @@ public class FormsPage {
     }
 
 
+    @Step("Verify text field value")
     public void verifyTextFieldText(String expectedSample) {
 
         String actualTextOnScreen = Finder.elementVisibility(TextField, driver).getAttribute("text");
