@@ -26,7 +26,7 @@ import java.nio.file.Paths;
 @Feature("Forms Automation Feature")
 public class FormsTest {
 
-    // Global variables accessible across all lifecycle and test methods in this class
+    // Preparation variables
     private AndroidDriver driver;
     private AppiumDriverLocalService service;
     private PropertyReader propertyReader;
@@ -40,8 +40,7 @@ public class FormsTest {
 
     @BeforeClass
     public void setUpAppiumService() {
-        // OPTIMIZATION: Converted the environment properties path to be dynamic using 'user.dir'
-        // to prevent test suite compilation breaks across different machines.
+
         String propertiesPath = Paths.get(System.getProperty("user.dir"),
                 "src", "main", "resources", "Enviroment.properties").toString();
         propertyReader = new PropertyReader(propertiesPath);
@@ -68,7 +67,6 @@ public class FormsTest {
                 .noReset() // To make appium not start with clean state
                 .setApp(System.getProperty("user.dir") + "/src/test/resources/" + propertyReader.getProperty("app"));
 
-        // Combining IP and Port dynamically into a safely formatted URI object, then converting to URL
         String appiumUrl = "http://" + propertyReader.getProperty("ipAddress") + ":" + propertyReader.getProperty("port");
         driver = new AndroidDriver(new URI(appiumUrl).toURL(), options);
     }
