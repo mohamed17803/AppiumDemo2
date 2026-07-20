@@ -37,7 +37,7 @@ public class FormsTest {
         return this.driver;
     }
 
-
+    
     @BeforeClass
     public void setUpAppiumService() {
 

@@ -22,7 +22,7 @@ public class TestSample {
         service = new AppiumServiceBuilder()
                 .usingPort(4723)
                 .withIPAddress("127.0.0.1")
-                .withArgument(() -> "--use-drivers", "uiautomator2")  //x`
+                .withArgument(() -> "--use-drivers", "uiautomator2")  // D
                 .build();
 
         service.start();
@@ -34,7 +34,6 @@ public class TestSample {
         options.noReset();
         options.setDeviceName("Pixel 6 API");
         options.setApp("./src/test/resources/ApiDemos-debug.apk");
-
 
 
 
