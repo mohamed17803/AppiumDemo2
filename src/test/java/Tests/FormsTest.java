@@ -2,147 +2,92 @@ package Tests;
 
 import Pages.FormsPage;
 import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.android.options.UiAutomator2Options;
-import io.appium.java_client.service.local.AppiumDriverLocalService;
-import io.appium.java_client.service.local.AppiumServiceBuilder;
-import io.qameta.allure.*;
-import org.openqa.selenium.Platform;
+import io.qameta.allure.Allure;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import utils.ConfigReader;
+import utils.DriverFactory;
 import utils.JsonReader;
-import utils.PropertyReader;
+import utils.LogHelper;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
-
-
+/**
+ * Forms controls flow against ApiDemos, driven by ConfigReader + DriverFactory.
+ */
 @Epic("Appium Android")
 @Feature("Forms Automation Feature")
 public class FormsTest {
 
-    // Preparation variables
-    private AndroidDriver driver;
-    private AppiumDriverLocalService service;
-    private PropertyReader propertyReader;
     private JsonReader jsonReader;
 
-
-    public AndroidDriver getDriver() {
-        return this.driver;
-    }
-
-    
     @BeforeClass
-    public void setUpAppiumService() {
-
-        String propertiesPath = Paths.get(System.getProperty("user.dir"),
-                "src", "main", "resources", "Enviroment.properties").toString();
-        propertyReader = new PropertyReader(propertiesPath);
-
-        // Initializing  custom JsonReader class to process external TestData.json values
+    public void setUpTestData() {
         jsonReader = new JsonReader("./src/test/resources/TestData.json");
-
-        // Configuring and Starting the Appium Server dynamically based on properties configuration
-        service = new AppiumServiceBuilder()
-                .withIPAddress(propertyReader.getProperty("ipAddress"))
-                .usingPort(Integer.parseInt(propertyReader.getProperty("port")))
-                .withArgument(() -> "--use-drivers", propertyReader.getProperty("driver")) // Forces Appium to execute using the specified driver
-                .build();
-
-        service.start();
+        LogHelper.info("Test data loaded from TestData.json");
     }
 
     @BeforeMethod
-    public void setUpDriver() throws MalformedURLException, URISyntaxException {
-        // Constructing UiAutomator2 execution capabilities dynamically
-        UiAutomator2Options options = new UiAutomator2Options()
-                .setPlatformName(Platform.ANDROID.name())
-                .setDeviceName(propertyReader.getProperty("device"))
-                .noReset() // To make appium not start with clean state
-                .setApp(System.getProperty("user.dir") + "/src/test/resources/" + propertyReader.getProperty("app"));
-
-        String appiumUrl = "http://" + propertyReader.getProperty("ipAddress") + ":" + propertyReader.getProperty("port");
-        driver = new AndroidDriver(new URI(appiumUrl).toURL(), options);
+    public void setUpDriver() {
+        DriverFactory.initDriver();
     }
-
 
     @Test(description = "Validate text field input and checkbox selection in Forms controls")
     @Story("User can interact with Light Theme controls smoothly")
     @Severity(SeverityLevel.CRITICAL)
     @Description("Navigates to Forms controls menu, inputs dynamic JSON data, hides keyboard, and validates structural component state transitions.")
     public void validateFormsTextFieldFlow() {
-        // Instantiate the page object and inject the active driver session
-        FormsPage formsPage = new FormsPage(driver);
+        FormsPage formsPage = new FormsPage(DriverFactory.getDriver());
 
-        // Injecting test execution parameters directly into the Allure Report dashboard context
-        Allure.parameter("Target Device Architecture", propertyReader.getProperty("device"));
-        Allure.parameter("Automation Engine Driver", propertyReader.getProperty("driver"));
-
-        // STEP 1: Navigation Steps
-
-        formsPage.clickViewsBtn();
-        formsPage.clickControlsBtn();
-        formsPage.clickLightThemeBtn();
-
-
-        // STEP 2: Test Data Retrieval (Data-Driven Testing)
+        Allure.parameter("Target Device", ConfigReader.get("deviceName"));
+        Allure.parameter("Platform", ConfigReader.get("platformName"));
+        Allure.parameter("Appium Server", ConfigReader.get("appiumServerUrl"));
 
         String expectedSample = jsonReader.getJson("sample");
         Allure.parameter("Injected Payload Value", expectedSample);
 
-        // STEP 3: Action
+        formsPage
+                .clickViewsBtn()
+                .clickControlsBtn()
+                .clickLightThemeBtn()
+                .focusTextField()
+                .typeTextValue(expectedSample)
+                .verifyTextFieldText(expectedSample)
+                .clickCheckbox1();
 
-        formsPage.TextFieldValue();
-        formsPage.TypeTextValue(expectedSample);
+        Assert.assertTrue(formsPage.isCheckbox1Checked(),
+                "Error: Checkbox 1 was clicked but failed to switch to checked!");
 
-
-        // STEP 4: Verification / Assertions
-
-        // Validate that the visual text currently present on the mobile UI matches the JSON file exactly.
-        formsPage.verifyTextFieldText(expectedSample);
-
-        // Interact with Checkbox 1 and assert its state changes to checked
-        formsPage.clickCheckbox1();
-        Assert.assertTrue(formsPage.isCheckbox1Checked(), "Error: Checkbox 1 was clicked but failed to switch to checked!");
-
-        // Interact with Checkbox 2 and assert its state changes to checked
         formsPage.clickCheckbox2();
-        Assert.assertTrue(formsPage.isCheckbox2Checked(), "Error: Checkbox 2 was clicked but failed to switch to checked!");
+        Assert.assertTrue(formsPage.isCheckbox2Checked(),
+                "Error: Checkbox 2 was clicked but failed to switch to checked!");
     }
 
-
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void tearDownDriver() {
-        // Ensure the driver instance is active before performing tear-down actions
-        if (driver != null) {
-            try {
-                // 1. Dynamic Package Retrieval
-                String currentPackage = driver.getCurrentPackage();
-
-                // 2. Force Kill Application: Resets execution state to safeguard Test Isolation
-                driver.terminateApp(currentPackage);
-                System.out.println("Done: Application terminated successfully.");
-            } catch (Exception e) {
-                // Wrapped in a catch block to protect execution flow if the app closed unexpectedly beforehand
-                System.out.println("Notice: Could not terminate app window: " + e.getMessage());
+        try {
+            if (DriverFactory.getDriverOrNull() instanceof AndroidDriver androidDriver) {
+                String currentPackage = androidDriver.getCurrentPackage();
+                androidDriver.terminateApp(currentPackage);
+                LogHelper.info("Application terminated: " + currentPackage);
             }
-
-            // 3. Close the core automation driver session
-            driver.quit();
+        } catch (Exception e) {
+            LogHelper.warn("Could not terminate app: " + e.getMessage());
+        } finally {
+            DriverFactory.quitDriver();
         }
     }
 
-
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDownService() {
-        if (service != null) {
-            service.stop();
-        }
+        DriverFactory.stopAppiumServer();
     }
 }

@@ -1,121 +1,112 @@
 package Pages;
 
 import io.appium.java_client.AppiumBy;
-import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.AppiumDriver;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.testng.Assert;
-import utils.Actions;
 import utils.Finder;
 
+/**
+ * Fluent Page Object for ApiDemos Views → Controls → Light Theme flow.
+ */
+public class FormsPage extends BasePage {
 
-public class FormsPage {
+    private final By viewsBtn = AppiumBy.accessibilityId("Views");
+    private final By controlsBtn = AppiumBy.accessibilityId("Controls");
+    private final By lightThemeBtn = AppiumBy.accessibilityId("1. Light Theme");
+    private final By checkbox1 = AppiumBy.accessibilityId("Checkbox 1");
+    private final By checkbox2 = AppiumBy.accessibilityId("Checkbox 2");
+    private final By textField = AppiumBy.className("android.widget.EditText");
 
-    // Global Appium AndroidDriver instance to interact with the mobile elements
-    private final AndroidDriver driver;
-
-
-    public FormsPage(AndroidDriver driver) {
-        this.driver = driver;
+    public FormsPage(AppiumDriver driver) {
+        super(driver);
     }
-
-
-    // LOCATORS (UI Elements Identifiers)
-
-
-    private final By ViewsBtn = AppiumBy.accessibilityId("Views");
-    private final By ControlsBtn = AppiumBy.accessibilityId("Controls");
-    private final By LightThemeBtn = AppiumBy.accessibilityId("1. Light Theme");
-    private final By Checkbox1 = AppiumBy.accessibilityId("Checkbox 1");
-    private final By Checkbox2 = AppiumBy.accessibilityId("Checkbox 2");
-    private final By TextField = AppiumBy.className("android.widget.EditText");
-
-
-    // ACTIONS (User Interactions Methods)
-
-
 
     @Step("Open Views screen")
-    public void clickViewsBtn() {
-        Actions.click(ViewsBtn, driver);
+    public FormsPage clickViewsBtn() {
+        click(viewsBtn);
+        return this;
     }
-
 
     @Step("Open Controls screen")
-    public void clickControlsBtn() {
-        Actions.click(ControlsBtn, driver);
+    public FormsPage clickControlsBtn() {
+        click(controlsBtn);
+        return this;
     }
-
 
     @Step("Open Light Theme controls")
-    public void clickLightThemeBtn() {
-        Actions.click(LightThemeBtn, driver);
+    public FormsPage clickLightThemeBtn() {
+        click(lightThemeBtn);
+        return this;
     }
-
 
     @Step("Focus the text field")
-    public void TextFieldValue() {
-        Actions.click(TextField, driver);
+    public FormsPage focusTextField() {
+        click(textField);
+        return this;
     }
 
+    /**
+     * @deprecated Use {@link #focusTextField()} — kept for backward compatibility.
+     */
+    @Deprecated
+    public FormsPage TextFieldValue() {
+        return focusTextField();
+    }
 
     @Step("Type text field value")
-    public void TypeTextValue(String Sample) {
-
-        driver.findElement(TextField).clear();
-
-        // Type the dynamic data passed from the JSON file into the field
-        Actions.type(TextField, driver, Sample);
-
-
+    public FormsPage typeTextValue(String sample) {
+        Finder.elementVisibility(textField, driver).clear();
+        type(textField, sample);
         try {
-            driver.hideKeyboard();
+            if (driver instanceof io.appium.java_client.android.AndroidDriver androidDriver) {
+                androidDriver.hideKeyboard();
+            }
         } catch (Exception e) {
-            // Wrapped in a try-catch block to prevent the test from crashing if the keyboard hides itself automatically.
+            // Keyboard may already be hidden on some devices/emulators.
         }
+        return this;
     }
 
+    /**
+     * @deprecated Use {@link #typeTextValue(String)} — kept for backward compatibility.
+     */
+    @Deprecated
+    public FormsPage TypeTextValue(String sample) {
+        return typeTextValue(sample);
+    }
 
     @Step("Select Checkbox 1")
-    public void clickCheckbox1() {
-        Actions.click(Checkbox1, driver);
+    public FormsPage clickCheckbox1() {
+        click(checkbox1);
+        return this;
     }
-
-
 
     @Step("Select Checkbox 2")
-    public void clickCheckbox2() {
-        Actions.click(Checkbox2, driver);
+    public FormsPage clickCheckbox2() {
+        click(checkbox2);
+        return this;
     }
-
-
-    // ASSERTION & VERIFICATION METHODS
 
     @Step("Verify Checkbox 1 is checked")
     public boolean isCheckbox1Checked() {
-        // Fetching the "checked" attribute dynamically from the element (returns "true" or "false" as String)
-        String isChecked = Finder.elementVisibility(Checkbox1, driver).getAttribute("checked");
+        String isChecked = Finder.elementVisibility(checkbox1, driver).getAttribute("checked");
         return Boolean.parseBoolean(isChecked);
     }
-
 
     @Step("Verify Checkbox 2 is checked")
     public boolean isCheckbox2Checked() {
-        // Fetching the "checked" attribute dynamically from the element
-        String isChecked = Finder.elementVisibility(Checkbox2, driver).getAttribute("checked");
-
+        String isChecked = Finder.elementVisibility(checkbox2, driver).getAttribute("checked");
         return Boolean.parseBoolean(isChecked);
     }
 
-
     @Step("Verify text field value")
-    public void verifyTextFieldText(String expectedSample) {
-
-        String actualTextOnScreen = Finder.elementVisibility(TextField, driver).getAttribute("text");
-
-        // Execute the hard assertion with an explicit descriptive failure message
+    public FormsPage verifyTextFieldText(String expectedSample) {
+        String actualTextOnScreen = Finder.elementVisibility(textField, driver).getAttribute("text");
         Assert.assertEquals(actualTextOnScreen, expectedSample,
-                "Error: The text displayed on the screen [" + actualTextOnScreen + "] " +
-                        "does not match the expected text from JSON [" + expectedSample + "]!");
+                "Error: The text displayed on the screen [" + actualTextOnScreen + "] "
+                        + "does not match the expected text from JSON [" + expectedSample + "]!");
+        return this;
     }
 }
